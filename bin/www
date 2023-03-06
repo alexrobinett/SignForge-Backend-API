@@ -4,7 +4,7 @@
  * Module dependencies.
  */
 
-var app = require('../api/index');
+var app = require('../app');
 var debug = require('debug')('digital-sign-api:server');
 var http = require('http');
 
