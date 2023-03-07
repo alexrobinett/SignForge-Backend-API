@@ -50,6 +50,11 @@ router.delete('/:id', getStoreMessage, async (req,res) =>{
   }
 })
 
+router.get('/images/:path', getImage)
+
+function getImage(req, res, next){
+  res.download(`./public/images/${req.params.path}`)
+}
 
 async function getStoreMessage(req,res, next){
   let message
