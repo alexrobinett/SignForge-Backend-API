@@ -15,7 +15,9 @@ const UserSchema = new Schema({
     },
     password:{
         type: String,
-        required: true
+        required: true,
+        minLength: 6,
+        maxLength: 28,
     },
     devices:{
         type: Array,
@@ -27,12 +29,12 @@ const UserSchema = new Schema({
         default: [],
         required: true
     },
-    
     dateCreated:{
         type: Date,
         default: Date.now,
         required: true,
-    }
+    },
+    refreshToken: String,
 });
 
 // Export function to create "SomeModel" model class
