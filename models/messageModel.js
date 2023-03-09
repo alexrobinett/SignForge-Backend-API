@@ -5,6 +5,13 @@ const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
 const storeMessageModelSchema = new Schema({
+    owner:{
+        type: ObjectId,
+        required: true
+    },
+    imageOne: {
+        type: String
+    },
     imageOne: {
         type: String,
         required: true
