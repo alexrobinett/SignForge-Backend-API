@@ -5,10 +5,6 @@ const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
 const DeviceSchema = new Schema({
-    owner:{
-        type: ObjectId,
-        required: true
-    },
     messages:{
         type: Array,
         default: [],
