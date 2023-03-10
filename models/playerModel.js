@@ -5,17 +5,20 @@ const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
 const DeviceSchema = new Schema({
-    messages:{
-        type: Array,
-        default: [],
+    owner:{
+        type: mongoose.Schema.Types.ObjectId,
+        required: true,
+        ref:'User'
+    },
+    playerName:{
+        type: String,
         required: true
     },
-    dateLastUpdated:{
-        type: Date,
-        default: Date.now,
-        required: true,
-    }
+    playlist:[{
+        type: mongoose.Schema.Types.ObjectId,
+        ref:'Messages'
+    }]
 });
 
 // Export function to create "SomeModel" model class
-module.exports = mongoose.model("DeviceSchema", DeviceSchema);
+module.exports = mongoose.model("Player", DeviceSchema);

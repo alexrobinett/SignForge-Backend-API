@@ -13,7 +13,7 @@ const db = mongoose.connection
 db.on('error',(error) => console.error(error))
 db.once('error',(error) => console.log("Connected to Database"))
 
-const messagesRouter = require('./routes/messages');
+
 
 const app = express();
 
@@ -28,12 +28,11 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(cors())
 
-app.get('/', (req, res) => {
-  res.send('Hello World!');
-});
-
-app.use('/messages', messagesRouter);
-
+app.use('/messages',  require('./routes/messages'));
+app.use('/',  require('./routes/index'));
+app.use('/user', require('./routes/user'))
+app.use('/images', require('./routes/images'))
+app.use('/player', require('./routes/player'))
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

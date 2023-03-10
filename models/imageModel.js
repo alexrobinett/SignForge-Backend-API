@@ -7,8 +7,9 @@ const Schema = mongoose.Schema;
 
 const imageSchema = new Schema({
     owner:{
-        type: ObjectId,
-        required: true
+        type: mongoose.Schema.Types.ObjectId,
+        required: true,
+        ref:'User'
     },
     fileName:{
         type: String,
@@ -18,7 +19,7 @@ const imageSchema = new Schema({
         type: String,
         required: true
     },
-    dateCreated:{
+    datereated:{
         type: Date,
         default: Date.now,
         required: true,
@@ -26,4 +27,4 @@ const imageSchema = new Schema({
 });
 
 // Export function to create "SomeModel" model class
-module.exports = mongoose.model("DeviceSchema", DeviceSchema);
+module.exports = mongoose.model("Image", imageSchema);

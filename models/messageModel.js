@@ -5,8 +5,15 @@ const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
 const storeMessageModelSchema = new Schema({
-    imageOne: {
-        type: String
+    owner:{
+        type: mongoose.Schema.Types.ObjectId,
+        required: true,
+        ref:'User'
+    },
+    player:{
+        type: mongoose.Schema.Types.ObjectId,
+        required: true,
+        ref:'DevicePlayer'
     },
     imageOne: {
         type: String,
@@ -52,12 +59,11 @@ const storeMessageModelSchema = new Schema({
         type: String,
         required: true
     },
-    dateCreated:{
-        type: Date,
-        default: Date.now,
-        required: true,
-    }
-});
+},
+{
+    timestamps: true
+}
+);
 
 // Export function to create "SomeModel" model class
-module.exports = mongoose.model("StoreMessageModel", storeMessageModelSchema);
+module.exports = mongoose.model("Messages", storeMessageModelSchema);

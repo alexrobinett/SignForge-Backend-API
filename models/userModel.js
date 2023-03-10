@@ -5,10 +5,6 @@ const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
 const UserSchema = new Schema({
-    email: {
-        type: String,
-        required: true
-    },
     userName:{
         type: String,
         required: true
@@ -16,19 +12,15 @@ const UserSchema = new Schema({
     password:{
         type: String,
         required: true,
-        minLength: 6,
-        maxLength: 28,
     },
-    devices:{
-        type: Array,
-        default: [],
-        required: true
-    },
-    images:{
-        type: Array,
-        default: [],
-        required: true
-    },
+    devices:[{
+        type: mongoose.Schema.Types.ObjectId,
+        ref:'DevicePlayer'
+    }],
+    images: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref:'Image'
+    }],
     dateCreated:{
         type: Date,
         default: Date.now,
@@ -37,5 +29,4 @@ const UserSchema = new Schema({
     refreshToken: String,
 });
 
-// Export function to create "SomeModel" model class
-module.exports = mongoose.model("UserSchema", UserSchema);
+module.exports = mongoose.model("User", UserSchema);
