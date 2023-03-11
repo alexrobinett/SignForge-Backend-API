@@ -8,7 +8,7 @@ const getAllPlayers = asyncHandler(async (req, res) => {
     // Get all notes from MongoDB
     const players = await Player.find().lean()
 
-    // If no notes 
+    // If no players
     if (!players?.length) {
         return res.status(400).json({ message: 'No Players found' })
     }
@@ -21,36 +21,57 @@ const getAllPlayers = asyncHandler(async (req, res) => {
     res.json(PlayersWithOwner)
 })
 
-// Create Player
-const createNewPlayer = asyncHandler(async (req, res) => {
-    const { owner, playerName, playlist} = req.body
+// get a player by it's ID
+
+const getPlayerById = asyncHandler(async (req, res, next) => {
+    try {
+      const playerId = req.params.id;
+      const player = await Player.findById(playerId);
+  
+      if (!player) {
+        res.status(404).send('Player not found');
+      } else {
+        res.send(player);
+      }
+    } catch (error) {
+      next(error);
+    }
+  });
+
+
+  const createNewPlayer = asyncHandler(async (req, res) => {
+    const { owner, playerName, playlist } = req.body;
 
     // Confirm data
     if (!owner || !playerName) {
-        return res.status(400).json({ message: 'All fields are required' })
+        return res.status(400).json({ message: 'All fields are required' });
     }
 
     // Check for duplicate playerName
-    const duplicate = await Player.findOne({ playerName }).lean().exec()
+    const duplicate = await Player.findOne({ playerName }).lean().exec();
 
     if (duplicate) {
-        return res.status(409).json({ message: 'Duplicate Player Name' })
+        return res.status(409).json({ message: 'Duplicate Player Name' });
     }
 
     // Create and store the new Player
-    const note = await Player.create({ owner, playerName, playlist })
+    const newPlayer = await Player.create({ owner, playerName, playlist });
 
-    if (note) {
-        return res.status(201).json({ message: 'New Player created' })
+    // Add the new Player's ID to the user's devices array
+    const user = await User.findById(owner);
+    user.devices.push(newPlayer._id);
+    await user.save();
+
+    if (newPlayer) {
+        return res.status(201).json({ message: 'New Player created' });
     } else {
-        return res.status(400).json({ message: 'Invalid Player data received' })
+        return res.status(400).json({ message: 'Invalid Player data received' });
     }
-
-})
+});
 
 // update player
 const updatePlayer = asyncHandler(async (req, res) => {
-    const { id, owner, playlist, playerName} = req.body
+    const { id, owner, playlist, playerName, deleteMessageId, newMessage } = req.body
 
     // Confirm data
     if (!id || !playerName) {
@@ -72,9 +93,18 @@ const updatePlayer = asyncHandler(async (req, res) => {
         return res.status(409).json({ message: 'Duplicate Player Name' })
     }
 
-    Player.owner = owner
-    note.playerName = playerName
-    note.playlist = playlist
+    // Delete message from playlist
+    if (deleteMessageId) {
+        player.playlist = player.playlist.filter(message => message.id !== deleteMessageId)
+    }
+
+    // Push new message to playlist
+    if (newMessage) {
+        player.playlist.push(newMessage)
+    }
+
+    player.owner = owner
+    player.playerName = playerName
 
     const updatedPlayer = await player.save()
 
@@ -109,4 +139,5 @@ module.exports = {
    updatePlayer,
    createNewPlayer,
    getAllPlayers,
+   getPlayerById
 }

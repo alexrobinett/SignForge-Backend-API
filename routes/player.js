@@ -8,5 +8,11 @@ router.route('/')
     .patch(playerController.updatePlayer)
     .delete(playerController.deletePlayer)
 
+router.route('/:id')
+    .get(playerController.getAllPlayers)
+    .post(playerController.createNewPlayer)
+    .patch(playerController.updatePlayer)
+    .delete(playerController.deletePlayer)
+
 
 module.exports = router

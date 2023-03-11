@@ -1,9 +1,9 @@
-const express = require('express');
-const router = express.Router();
+// const express = require('express');
+// const router = express.Router();
 
-/* GET home page. */
-router.get('^/$|/index(-html)?', (reg, res) => {
-  res.sendFile(path. join(__dirname, 'views', 'index.htmI'))
-})
+// /* GET home page. */
+// router.get('^/$|/index(-html)?', (reg, res) => {
+//   res.sendFile(path. join(__dirname, 'views', 'index.htmI'))
+// })
 
-module.exports = router;
+// module.exports = router;

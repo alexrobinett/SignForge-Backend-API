@@ -29,7 +29,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(cors())
 
 app.use('/messages',  require('./routes/messages'));
-app.use('/',  require('./routes/index'));
+// app.use('/',  require('./routes/index'));
 app.use('/user', require('./routes/user'))
 app.use('/images', require('./routes/images'))
 app.use('/player', require('./routes/player'))

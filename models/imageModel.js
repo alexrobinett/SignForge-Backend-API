@@ -19,7 +19,11 @@ const imageSchema = new Schema({
         type: String,
         required: true
     },
-    datereated:{
+    imageURL:{
+        type: String,
+        required: true
+    },
+    dateCreated:{
         type: Date,
         default: Date.now,
         required: true,
