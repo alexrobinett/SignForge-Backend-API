@@ -15,6 +15,11 @@ const storeMessageModelSchema = new Schema({
         required: true,
         ref:'DevicePlayer'
     },
+    draft:{
+        type: Boolean,
+        default: false,
+        required: true,
+    },
     imageOne: {
         type: String,
         required: true

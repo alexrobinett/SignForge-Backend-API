@@ -1,18 +1,18 @@
 const express = require('express');
 const router = express.Router();
-const playerController = require('../controllers/playerController')
+const playerController = require('../controllers/playerController');
+
+router.route('/playlist').get(playerController.getPlayerPlaylist);
 
 router.route('/')
-    .get(playerController.getAllPlayers)
-    .post(playerController.createNewPlayer)
-    .patch(playerController.updatePlayer)
-    .delete(playerController.deletePlayer)
-
-router.route('/:id')
-    .get(playerController.getAllPlayers)
-    .post(playerController.createNewPlayer)
-    .patch(playerController.updatePlayer)
-    .delete(playerController.deletePlayer)
+  .get(playerController.getAllPlayers)
+  .post(playerController.createNewPlayer)
+  .patch(playerController.updatePlayer)
+  .delete(playerController.deletePlayer);
 
 
-module.exports = router
+  router.route('/info').get(playerController.getPlayerById);
+
+
+
+module.exports = router;

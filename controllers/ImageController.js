@@ -1,37 +1,37 @@
-const User = require('../models/userModel')
-const Image = require('../models/imageModel')
-const asyncHandler = require('express-async-handler')
+const asyncHandler = require('express-async-handler');
 const multer = require('multer');
 const multerS3 = require('multer-s3');
-const { S3Client, DeleteObjectCommand } = require('@aws-sdk/client-s3')
-const dotenv = require('dotenv')
+const { S3Client, DeleteObjectCommand } = require('@aws-sdk/client-s3');
+const dotenv = require('dotenv');
+const Image = require('../models/imageModel');
+const User = require('../models/userModel');
 
-dotenv.config()
+dotenv.config();
 
-const s3 = new S3Client({ 
-    credentials:{
-        accessKeyId: process.env.AWS_ACCESS_KEY,
-        secretAccessKey: process.env.AWS_SECRET_KEY,
-    },
-    region: process.env.AWS_BUCKET_REGION,
-})
+const s3 = new S3Client({
+  credentials: {
+    accessKeyId: process.env.AWS_ACCESS_KEY,
+    secretAccessKey: process.env.AWS_SECRET_KEY,
+  },
+  region: process.env.AWS_BUCKET_REGION,
+});
 
 const upload = multer({
-    storage: multerS3({
-      s3: s3,
-      bucket: process.env.AWS_BUCKET_NAME,
-      metadata: function (req, file, cb) {
-        cb(null, { fieldName: file.fieldname });
-      },
-      key: function (req, file, cb) {
-        cb(null, Date.now().toString() + '-' + file.originalname);
-      },
-    }),
-  });
+  storage: multerS3({
+    s3,
+    bucket: process.env.AWS_BUCKET_NAME,
+    metadata(req, file, cb) {
+      cb(null, { fieldName: file.fieldname });
+    },
+    key(req, file, cb) {
+      cb(null, `${Date.now().toString()}-${file.originalname}`);
+    },
+  }),
+});
 
 const uploadImage = asyncHandler(async (req, res) => {
   try {
-     upload.single('photo')(req, res, async (error) => {
+    upload.single('photo')(req, res, async (error) => {
       if (error) {
         console.error(error);
         res.status(500).send('Server error');
@@ -45,7 +45,6 @@ const uploadImage = asyncHandler(async (req, res) => {
           fileName: req.file.originalname,
           referenceName: req.file.key,
           imageURL: `https://${process.env.AWS_BUCKET_NAME}.s3.${process.env.AWS_BUCKET_REGION}.amazonaws.com/${req.file.key}`,
-          
         });
         await newImage.save();
         user.images.push(newImage._id);
@@ -62,7 +61,7 @@ const uploadImage = asyncHandler(async (req, res) => {
 const getUserImages = asyncHandler(async (req, res, next) => {
   try {
     // Get the user ID from the request
-    const userId = req.body.userId;
+    const { userId } = req.body;
 
     // Query the database for the images belonging to the user
     const images = await Image.find({ owner: userId });
@@ -75,56 +74,59 @@ const getUserImages = asyncHandler(async (req, res, next) => {
   }
 });
 
+const getUserImage = asyncHandler(async (req, res, next) => {
+  try {
+    // Get the image ID from the request parameters
+    const imageId = req.params.id;
+    console.log(req.params.id);
+    // Query the database for the image with the specified ID
+    const image = await Image.findById(imageId);
 
+    res.send(image);
+  } catch (error) {
+    next(error);
+  }
+});
 
-
-    const getUserImage = asyncHandler(async (req, res, next) => {
+const deleteImage = asyncHandler(async (req, res, next) => {
     try {
-        // Get the image ID from the request parameters
-        const imageId = req.params.id;
-        console.log(req.params.id)
-        // Query the database for the image with the specified ID
-        const image = await Image.findById(imageId);
+      // Get the image ID from the request parameters
+      const imageId = req.body.id;
+      console.log(req.params);
+      // Query the database for the image with the specified ID
+      const image = await Image.findById(imageId);
+  
+      // Delete the image from Amazon S3
+      const params = {
+        Bucket: process.env.AWS_BUCKET_NAME,
+        Key: image.referenceName,
+      };
+  
+      const command = new DeleteObjectCommand(params);
+      await s3.send(command);
+  
+      // Remove the image reference from the user's document
+      const userName = await User.findById(image.owner);
+      userName.images.pull(imageId);
+      await userName.save();
+  
+      // Remove the image from the database
+      await Image.findByIdAndRemove(imageId);
+  
+      // Remove the image ID from the user's document
+      const user = await User.findById(image.owner);
+      const index = user.images.indexOf(imageId);
+      if (index > -1) {
+        user.images.splice(index, 1);
+      }
+      await user.save();
+  
+      res.send('Image deleted successfully');
+    } catch (error) {
+      next(error);
+    }
+  });
 
-        
-        res.send(image);
-        } catch (error) {
-        next(error);
-        }
-        });
-
-
-
-    const deleteImage = asyncHandler(async (req, res, next) => {
-        try {
-          // Get the image ID from the request parameters
-          const imageId = req.body.id;
-          console.log(req.params)
-          // Query the database for the image with the specified ID
-          const image = await Image.findById(imageId);
-
-          // Delete the image from Amazon S3
-          const params = {
-            Bucket: process.env.AWS_BUCKET_NAME,
-            Key: image.referenceName
-          };
-
-          const command = new DeleteObjectCommand(params)
-          await s3.send(command);
-      
-          // Remove the image reference from the user's document
-          const user = await User.findById(image.owner);
-          user.images.pull(imageId);
-          await user.save();
-      
-          // Remove the image from the database
-          await Image.findByIdAndRemove(imageId);
-      
-          res.send('Image deleted successfully');
-        } catch (error) {
-          next(error);
-        }
-      });
-
-
-module.exports = {uploadImage, getUserImage, deleteImage, getUserImages}
+module.exports = {
+  uploadImage, getUserImage, deleteImage, getUserImages,
+};

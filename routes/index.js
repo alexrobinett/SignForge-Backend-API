@@ -1,9 +1,10 @@
-// const express = require('express');
-// const router = express.Router();
+const express = require('express');
 
-// /* GET home page. */
-// router.get('^/$|/index(-html)?', (reg, res) => {
-//   res.sendFile(path. join(__dirname, 'views', 'index.htmI'))
-// })
+const router = express.Router();
 
-// module.exports = router;
+/* GET home page. */
+router.get('^/$|/index(-html)?', (reg, res) => {
+  res.sendFile(path.join(__dirname, 'views', 'index.htmI'));
+});
+
+module.exports = router;
