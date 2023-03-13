@@ -1,19 +1,19 @@
-require('dotenv').config()
+/* eslint-disable import/no-unresolved */
+require('dotenv').config();
 const createError = require('http-errors');
 const express = require('express');
 const path = require('path');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
-const mongoose = require("mongoose");
-const Schema = mongoose.Schema;
-const cors = require('cors')
+const mongoose = require('mongoose');
 
-mongoose.connect(process.env.DATABASE_URL,{useNewUrlParser:true})
-const db = mongoose.connection
-db.on('error',(error) => console.error(error))
-db.once('error',(error) => console.log("Connected to Database"))
+const { Schema } = mongoose;
+const cors = require('cors');
 
-const messagesRouter = require('./routes/messages');
+mongoose.connect(process.env.DATABASE_URL, { useNewUrlParser: true });
+const db = mongoose.connection;
+db.on('error', (error) => console.error(error));
+db.once('error', (error) => console.log('Connected to Database'));
 
 const app = express();
 
@@ -26,22 +26,21 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
-app.use(cors())
+app.use(cors());
 
-app.get('/', (req, res) => {
-  res.send('Hello World!');
-});
-
-app.use('/messages', messagesRouter);
-
+app.use('/messages', require('./routes/messages'));
+app.use('/',  require('./routes/index'));
+app.use('/user', require('./routes/user'));
+app.use('/images', require('./routes/images'));
+app.use('/player', require('./routes/player'));
 
 // catch 404 and forward to error handler
-app.use(function(req, res, next) {
+app.use((req, res, next) => {
   next(createError(404));
 });
 
 // error handler
-app.use(function(err, req, res, next) {
+app.use((err, req, res, next) => {
   // set locals, only providing error in development
   res.locals.message = err.message;
   res.locals.error = req.app.get('env') === 'development' ? err : {};
