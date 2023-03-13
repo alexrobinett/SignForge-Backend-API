@@ -158,15 +158,14 @@ const getPlayerPlaylist = asyncHandler(async (req, res) => {
   }
 
   // Confirm Player exists to delete
-  const player = await Player.findById(id).exec();
+  const player = await Player.findById(id).populate('playlist').exec()
 
   if (!player) {
     return res.status(400).json({ message: 'Player not found' });
   }
 
-  messagePlaylist = player.playlist;
 
-  res.json(messagePlaylist);
+  res.json(player.playlist);
 });
 
 module.exports = {
