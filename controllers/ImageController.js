@@ -125,6 +125,7 @@ const deleteImage = asyncHandler(async (req, res, next) => {
     } catch (error) {
       next(error);
     }
+    
   });
 
 module.exports = {
