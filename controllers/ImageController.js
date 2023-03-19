@@ -61,11 +61,11 @@ const uploadImage = asyncHandler(async (req, res) => {
 const getUserImages = asyncHandler(async (req, res, next) => {
   try {
     // Get the user ID from the request
-    const { userId } = req.body;
+    const { id } = req.query;
 
     // Query the database for the images belonging to the user
-    const images = await Image.find({ owner: userId });
-
+    const images = await Image.find({ owner: id });
+    console.log(id)
     // Build an array of image URLs
 
     res.send(images);
@@ -91,8 +91,8 @@ const getUserImage = asyncHandler(async (req, res, next) => {
 const deleteImage = asyncHandler(async (req, res, next) => {
     try {
       // Get the image ID from the request parameters
-      const imageId = req.body.id;
-      console.log(req.params);
+      const imageId = req.params.id;
+      console.log(req.params.id);
       // Query the database for the image with the specified ID
       const image = await Image.findById(imageId);
   
@@ -127,6 +127,25 @@ const deleteImage = asyncHandler(async (req, res, next) => {
     }
   });
 
+  const updateFriendlyName =  asyncHandler(async (req, res, next) => {
+
+    try {
+      // Get the image ID from the request parameters
+      const imageId = req.params.id;
+      const imageName = req.body.updateName
+
+      console.log(imageName);
+      const image = await Image.findById(imageId);
+      image.fileName = imageName
+
+      updatedImage = await image.save()
+
+      res.send(`image updated ${updatedImage}`);
+    } catch (error) {
+      next(error);
+    }
+  });
+
 module.exports = {
-  uploadImage, getUserImage, deleteImage, getUserImages,
+  uploadImage, getUserImage, deleteImage, getUserImages, updateFriendlyName
 };

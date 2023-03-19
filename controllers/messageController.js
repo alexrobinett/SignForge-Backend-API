@@ -17,7 +17,7 @@ const getAllMessagesFromPlayer = asyncHandler(async (req, res) => {
 
 
 const createNewMessage = asyncHandler(async (req, res) => {
-    const { id, player, draft, imageOne, imageTwo, imageThree, price, quantity, points, promo, promoLineOne, promoLineTwo, disclaimerLineOne, disclaimerLineTwo } = req.body
+    const { id, player, draft, messageType, messageName, imageOne, imageTwo, imageThree, price, quantity, points, promo, promoLineOne, promoLineTwo, disclaimerLineOne, disclaimerLineTwo } = req.body
   
     // Confirm data
     if (!player || !imageOne || !imageTwo || !imageThree || !price || !quantity || !points || !promo || !promoLineOne || !promoLineTwo || !disclaimerLineOne || !disclaimerLineTwo) {
@@ -29,6 +29,8 @@ const createNewMessage = asyncHandler(async (req, res) => {
       owner: id,
       player: player,
       draft: draft,
+      messageType: messageType,
+      messageName: messageName,
       imageOne: imageOne,
       imageTwo: imageTwo,
       imageThree: imageThree,

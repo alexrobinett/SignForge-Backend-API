@@ -7,8 +7,14 @@ router
   .route('/')
   .get(imageController.getUserImages)
   .post(imageController.uploadImage)
-  .delete(imageController.deleteImage);
 
-router.route('/:id').get(imageController.getUserImage);
 
+  
+
+router
+  .route('/:id')
+  .delete(imageController.deleteImage)
+  .get(imageController.getUserImage)
+  .patch(imageController.updateFriendlyName)
+  
 module.exports = router;

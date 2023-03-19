@@ -31,12 +31,11 @@ const UserSchema = new Schema({
       ref: 'Message',
     },
   ],
-  dateCreated: {
-    type: Date,
-    default: Date.now,
-    required: true,
-  },
   refreshToken: String,
-});
+},
+{
+    timestamps: true
+}
+);
 
 module.exports = mongoose.model('User', UserSchema);

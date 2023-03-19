@@ -20,6 +20,14 @@ const DeviceSchema = new Schema({
       ref: 'Messages',
     },
   ],
+  tags: [
+    {
+      type: String,
+    },
+  ],
+},
+{
+    timestamps: true
 });
 
 // Export function to create "SomeModel" model class

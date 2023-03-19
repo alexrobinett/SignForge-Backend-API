@@ -23,11 +23,9 @@ const imageSchema = new Schema({
     type: String,
     required: true,
   },
-  dateCreated: {
-    type: Date,
-    default: Date.now,
-    required: true,
-  },
+},
+{
+    timestamps: true
 });
 
 // Export function to create "SomeModel" model class
