@@ -5,7 +5,7 @@ const { S3Client, DeleteObjectCommand } = require('@aws-sdk/client-s3');
 const dotenv = require('dotenv');
 const Image = require('../models/imageModel');
 const User = require('../models/userModel');
-
+const bodyParser = require('body-parser')
 dotenv.config();
 
 const s3 = new S3Client({
@@ -30,14 +30,17 @@ const upload = multer({
 });
 
 const uploadImage = asyncHandler(async (req, res) => {
+
   try {
+    console.log(req.body)
     upload.single('photo')(req, res, async (error) => {
       if (error) {
         console.error(error);
         res.status(500).send('Server error');
       } else {
         // Get the user that uploaded the photo
-        const user = await User.findById(req.body.userId);
+        const user = await User.findById(req.body.id);
+        console.log(req.body)
 
         // Save the reference to the photo in the user's documentdelete
         const newImage = new Image({
@@ -133,7 +136,7 @@ const deleteImage = asyncHandler(async (req, res, next) => {
       // Get the image ID from the request parameters
       const imageId = req.params.id;
       const imageName = req.body.updateName
-
+      console.log(req.body)
       console.log(imageName);
       const image = await Image.findById(imageId);
       image.fileName = imageName
