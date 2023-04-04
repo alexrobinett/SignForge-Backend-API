@@ -11,7 +11,7 @@ const login = asyncHandler(async (req, res) => {
         return res.status(400).json({Message: 'All fields Required'})
     }
 
-    const foundUser = await User.findOne(email).exec()
+    const foundUser = await User.findOne({email: email}).exec()
     
     if (!foundUser){
         return res.status(401).json({Message: 'Unauthorized'})
@@ -24,7 +24,8 @@ const login = asyncHandler(async (req, res) => {
     const accessToken = jwt.sign(
         {
             "UserInfo":{
-                "userID": foundUser._id
+                "userId": foundUser._id,
+                "Name": foundUser.firstName
             }
         },
         process.env.ACCESS_TOKEN_SECRET,
@@ -32,7 +33,7 @@ const login = asyncHandler(async (req, res) => {
     )
 
     const refreshToken = jwt.sign(
-        { "userID": foundUser._id },
+        { "userId": foundUser._id },
         process.env.REFRESH_TOKEN_SECRET,
         {expiresIn: '1d'}
     )
@@ -51,8 +52,8 @@ const login = asyncHandler(async (req, res) => {
   const refresh = asyncHandler(async (req, res) => {
 
     const cookies = req.cookies
-
-    if(!cookies?.jwt) return res.status.json({Message: 'Unauthorized'})
+    console.log(cookies.jwt)
+    if(!cookies?.jwt) return res.status(401).json({Message: 'Unauthorized'})
     
     const refreshToken = cookies.jwt
 
@@ -62,14 +63,15 @@ const login = asyncHandler(async (req, res) => {
         asyncHandler(async (err, decoded) => {
             if (err) return res.status(403).json({Message: 'Forbidden'})
 
-            const foundUser = await User.findOne({_id: decoded.userID})
+            const foundUser = await User.findOne({_id: decoded.userId})
 
             if(!foundUser) return res.status(401).json({Message: 'Unauthorized'})
 
             const accessToken = jwt.sign(
                 {
                     "UserInfo":{
-                        "userID": foundUser._id
+                        "userId": foundUser._id,
+                        "Name": foundUser.firstName
                     }
                 },
                 process.env.ACCESS_TOKEN_SECRET,
