@@ -21,30 +21,30 @@ const getAllUsers = asyncHandler(async (req, res) => {
 // access Private
 
 const createNewUser = asyncHandler(async (req, res) => {
-  const { userName, password } = req.body;
+  const { firstName, lastName, email, password } = req.body;
 
   // check for username and password
-  if (!userName || !password) {
+  if (!email || !password || !lastName || !firstName) {
     return res.status(400).json({ Message: 'All fields are Required' });
   }
 
   // check for duplicate user
-  const duplicate = await User.findOne({ userName }).lean().exec();
+  const duplicate = await User.findOne({ email }).lean().exec();
   if (duplicate) {
-    return res.status(409).json({ Message: 'Duplicate User' });
+    return res.status(409).json({ Message: 'Email has been used before!' });
   }
 
   // hash password
   const hashedPassword = await bcrypt.hash(password, 12);
 
-  const userObj = { userName, password: hashedPassword };
+  const userObj = { email, firstName, lastName, password: hashedPassword };
 
   const user = await User.create(userObj);
 
   if (user) {
-    res.status(201).json({ Message: `new user ${userName} was created` });
+    res.status(201).json({ Message: `new user ${email} was created` });
   } else {
-    res.status(400).json({ Message: 'invalid user date received. try again' });
+    res.status(400).json({ Message: 'invalid user data received. try again' });
   }
 });
 
@@ -112,6 +112,7 @@ const deleteUser = asyncHandler(async (req, res) => {
 
   res.json(replyMessage);
 });
+
 
 module.exports = {
   getAllUsers, createNewUser, updateUser, deleteUser,

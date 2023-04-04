@@ -1,4 +1,5 @@
 // Require Mongoose
+const { Int32 } = require("mongodb");
 const mongoose = require("mongoose");
 
 // Define a schema
@@ -9,6 +10,10 @@ const storeMessageModelSchema = new Schema({
         type: mongoose.Schema.Types.ObjectId,
         required: true,
         ref:'User'
+    }, 
+    position: {
+        type: Number,
+        required: true
     },
     player:{
         type: mongoose.Schema.Types.ObjectId,

@@ -4,13 +4,14 @@ const messageController = require('../controllers/messageController')
 
 
 router.route('/')
-    .get(messageController.getAllMessagesFromPlayer)
+    .get(messageController.getAllMessages)  
     .post(messageController.createNewMessage)
     .patch(messageController.updateMessage)
-    .delete(messageController.deleteMessage)
     
 
-
-
+router.route('/:id')
+   
+    .delete(messageController.deleteMessage)
+    .patch(messageController.updateMessagePosition)  
 
 module.exports = router;

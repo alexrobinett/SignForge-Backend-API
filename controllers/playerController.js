@@ -5,7 +5,7 @@ const Player = require('../models/playerModel');
 
 // Get all Players With Owner
 const getAllPlayers = asyncHandler(async (req, res) => {
-    const { id } = req.body; 
+    const { id } = req.query; 
   
     console.log(id);
     
@@ -82,19 +82,20 @@ const createNewPlayer = asyncHandler(async (req, res) => {
   return res.status(400).json({ message: 'Invalid Player data received' });
 });
 
-// update player
 const updatePlayer = asyncHandler(async (req, res) => {
-  const {
-    id, playerName,
-  } = req.body;
+  const { playerName, id } = req.body;
+  const playerId = req.params.id;
+
+  console.log(playerId);
+  console.log(playerName);
 
   // Confirm data
-  if (!id || !playerName) {
+  if (!playerId || !playerName) {
     return res.status(400).json({ message: 'All fields are required' });
   }
 
   // Confirm Player exists to update
-  const player = await Player.findById(id).exec();
+  const player = await Player.findById(playerId).exec();
 
   if (!player) {
     return res.status(400).json({ message: 'Player not found' });
@@ -104,7 +105,7 @@ const updatePlayer = asyncHandler(async (req, res) => {
   const duplicate = await Player.findOne({ playerName }).lean().exec();
 
   // Allow renaming of the original Player
-  if (duplicate && duplicate?._id.toString() !== id) {
+  if (duplicate && duplicate?._id.toString() !== playerId) {
     return res.status(409).json({ message: 'Duplicate Player Name' });
   }
 
@@ -112,12 +113,13 @@ const updatePlayer = asyncHandler(async (req, res) => {
 
   const updatedPlayer = await player.save();
 
-  res.json(`'${updatePlayer.playerName}' updated`);
+  res.json(`'${updatedPlayer.playerName}' updated`);
 });
+
 
 // delete player and messages
 const deletePlayer = asyncHandler(async (req, res) => {
-    const { id } = req.body;
+    const id  = req.params.id;
   
     // Confirm data
     if (!id) {
@@ -167,6 +169,7 @@ const getPlayerPlaylist = asyncHandler(async (req, res) => {
 
   res.json(player.playlist);
 });
+
 
 module.exports = {
   deletePlayer,

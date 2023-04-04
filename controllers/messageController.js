@@ -4,16 +4,22 @@ const Player = require('../models/playerModel')
 const asyncHandler = require('express-async-handler')
 
 
-const getAllMessagesFromPlayer = asyncHandler(async (req, res) => {
-        const { id, player} = req.body
+const getAllMessages = asyncHandler(async (req, res) => {
+  const { id } = req.query;
+  console.log(id);
 
-        const messages = await Message.find()
-        const messagesWithPlayerAndOwner = await Promise.all(messages.map(async (message) => {
-            return {...messagesWithPlayerAndOwner, player: player, owner:  id}
-    }))
+  // Find all messages with the specified owner ID
+  const messages = await Message.find({ owner: id });
 
-    res.status(201).json(messagesWithPlayerAndOwner)
-})
+  // Map the messages to include the owner ID
+  const messagesWithPlayerAndOwner = messages.map((message) => {
+      return { ...message.toObject(), owner: id };
+  });
+
+  res.status(200).json(messagesWithPlayerAndOwner);
+});
+
+
 
 
 const createNewMessage = asyncHandler(async (req, res) => {
@@ -28,6 +34,8 @@ const createNewMessage = asyncHandler(async (req, res) => {
     const message = new Message({
       owner: id,
       player: player,
+      messageName: messageName,
+      messageType: messageType,
       draft: draft,
       messageType: messageType,
       messageName: messageName,
@@ -41,7 +49,8 @@ const createNewMessage = asyncHandler(async (req, res) => {
       promoLineOne: promoLineOne,
       promoLineTwo: promoLineTwo,
       disclaimerLineOne: disclaimerLineOne,
-      disclaimerLineTwo: disclaimerLineTwo
+      disclaimerLineTwo: disclaimerLineTwo,
+      position: 1
     })
   
     // check if draft
@@ -54,8 +63,10 @@ const createNewMessage = asyncHandler(async (req, res) => {
       if (!existingPlayer) {
         return res.status(409).json({ Message: 'Player Does Not Exist' });
       }
-      const newMessage = await message.save()
       const foundPlayer = await Player.findById(player);
+      const lastPosition = foundPlayer.playlist.length;
+      message.position = lastPosition;
+      const newMessage = await message.save()
       foundPlayer.playlist.push(newMessage._id);
       foundPlayer.save()
       res.status(201).json(newMessage)
@@ -71,7 +82,10 @@ const createNewMessage = asyncHandler(async (req, res) => {
   
 
 const updateMessage = asyncHandler(async (req, res) => {
-    const { id, player, draft, imageOne, imageTwo, imageThree, price, quantity, points, promo, promoLineOne, promoLineTwo, disclaimerLineOne, disclaimerLineTwo } = req.body
+    const { id, player, messageName, messageType, draft, imageOne, imageTwo, imageThree, price, quantity, points, promo, promoLineOne, promoLineTwo, disclaimerLineOne, disclaimerLineTwo } = req.body
+
+    console.log(messageName)
+  
 
     // Confirm data
     if (!id || !player|| !imageOne || !imageTwo || !imageThree || !price || !quantity || !points || !promo || !promoLineOne || !promoLineTwo || !disclaimerLineOne || !disclaimerLineTwo) {
@@ -86,6 +100,8 @@ const updateMessage = asyncHandler(async (req, res) => {
 
     existingMessage.player = player;
     existingMessage.draft = draft;
+    existingMessage.messageName = messageName;
+    existingMessage.messageType = messageType;
     existingMessage.imageOne = imageOne;
     existingMessage.imageTwo = imageTwo;
     existingMessage.imageThree = imageThree;
@@ -130,10 +146,10 @@ const updateMessage = asyncHandler(async (req, res) => {
 
 
 const deleteMessage = asyncHandler(async (req, res) => {
-    
+  const id  = req.params.id;
 
     // Find message to delete
-    const messageToDelete = await Message.findById(req.query.message).exec()
+    const messageToDelete = await Message.findById(id).exec()
 
     if (!messageToDelete) {
         return res.status(404).json({ message: 'Message not found' })
@@ -152,9 +168,32 @@ const deleteMessage = asyncHandler(async (req, res) => {
 })
 
 
+const updateMessagePosition = asyncHandler(async (req, res) => {
+  const { id, position } = req.body
+
+
+  // Confirm data
+  if (!id || position === undefined) {
+      return res.status(400).json({ message: 'All fields are required' });
+  }
+
+  // Find and update the existing message
+  const existingMessage = await Message.findById(id).exec();
+  if (!existingMessage) {
+      return res.status(404).json({ message: 'Message not found' });
+  }
+
+  existingMessage.position = position;
+  const updatedMessage = await existingMessage.save();
+
+  res.status(200).json(updatedMessage);
+});
+
+
 module.exports = {
   deleteMessage,
   createNewMessage,
-  getAllMessagesFromPlayer,
+  getAllMessages,
   updateMessage,
+  updateMessagePosition,
  }
