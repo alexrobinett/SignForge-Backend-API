@@ -39,9 +39,19 @@ const uploadImage = asyncHandler(async (req, res) => {
         console.error(error);
         res.status(500).send('Server error');
       } else {
+        const authHeader = req.headers.authorization
+    const token = authHeader.split(' ')[1]
+
+    id = jwt.verify(
+      token,
+      process.env.ACCESS_TOKEN_SECRET,
+      (err, decoded) => {
+          if (err) return res.status(403).json({ message: 'Forbidden' })       
+          return decoded.UserInfo.userId }
+  )
 
         // Get the user that uploaded the photo
-        const user = await User.findById(req.body.id);
+        const user = await User.findById(id);
         console.log(req.body)
 
         // Save the reference to the photo in the user's documentdelete

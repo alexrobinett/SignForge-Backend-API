@@ -70,7 +70,7 @@ const createNewPlayer = asyncHandler(async (req, res) => {
   const authHeader = req.headers.authorization
   const token = authHeader.split(' ')[1]
 
-  let owner = jwt.verify(
+  const owner = jwt.verify(
     token,
     process.env.ACCESS_TOKEN_SECRET,
     (err, decoded) => {
@@ -142,7 +142,17 @@ const updatePlayer = asyncHandler(async (req, res) => {
 // delete player and messages
 const deletePlayer = asyncHandler(async (req, res) => {
     const id  = req.params.id;
+    const authHeader = req.headers.authorization
+    const token = authHeader.split(' ')[1]
   
+    const userId = jwt.verify(
+      token,
+      process.env.ACCESS_TOKEN_SECRET,
+      (err, decoded) => {
+          if (err) return res.status(403).json({ message: 'Forbidden' })       
+          return decoded.UserInfo.userId }
+  )
+    
     // Confirm data
     if (!id) {
       return res.status(400).json({ message: 'Player ID required' });
