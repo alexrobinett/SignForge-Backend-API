@@ -2,12 +2,23 @@ const asyncHandler = require('express-async-handler');
 const User = require('../models/userModel');
 const Message = require('../models/imageModel');
 const Player = require('../models/playerModel');
+const jwt = require('jsonwebtoken')
+const dotenv = require('dotenv');
+dotenv.config();
+
 
 // Get all Players With Owner
 const getAllPlayers = asyncHandler(async (req, res) => {
-    const { id } = req.query; 
-  
-    console.log(id);
+  const authHeader = req.headers.authorization
+  const token = authHeader.split(' ')[1]
+
+  const id = jwt.verify(
+    token,
+    process.env.ACCESS_TOKEN_SECRET,
+    (err, decoded) => {
+        if (err) return res.status(403).json({ message: 'Forbidden' })       
+        return decoded.UserInfo.userId }
+)
     
     try {
       // Get all players from MongoDB
@@ -54,7 +65,18 @@ const getPlayerById = asyncHandler(async (req, res, next) => {
 });
 
 const createNewPlayer = asyncHandler(async (req, res) => {
-  const { owner, playerName, playlist } = req.body;
+  const { playerName, playlist } = req.body;
+
+  const authHeader = req.headers.authorization
+  const token = authHeader.split(' ')[1]
+
+  let owner = jwt.verify(
+    token,
+    process.env.ACCESS_TOKEN_SECRET,
+    (err, decoded) => {
+        if (err) return res.status(403).json({ message: 'Forbidden' })       
+        return decoded.UserInfo.userId }
+)
 
   // Confirm data
   if (!owner || !playerName) {

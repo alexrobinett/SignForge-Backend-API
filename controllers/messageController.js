@@ -2,11 +2,22 @@ const User = require('../models/userModel')
 const Message = require('../models/messageModel')
 const Player = require('../models/playerModel')
 const asyncHandler = require('express-async-handler')
+const jwt = require('jsonwebtoken')
+const dotenv = require('dotenv');
+dotenv.config();
 
 
 const getAllMessages = asyncHandler(async (req, res) => {
-  const { id } = req.query;
-  console.log(id);
+  const authHeader = req.headers.authorization
+  const token = authHeader.split(' ')[1]
+
+  const id = jwt.verify(
+    token,
+    process.env.ACCESS_TOKEN_SECRET,
+    (err, decoded) => {
+        if (err) return res.status(403).json({ message: 'Forbidden' })       
+        return decoded.UserInfo.userId }
+)
 
   // Find all messages with the specified owner ID
   const messages = await Message.find({ owner: id });
@@ -23,7 +34,17 @@ const getAllMessages = asyncHandler(async (req, res) => {
 
 
 const createNewMessage = asyncHandler(async (req, res) => {
-    const { id, player, draft, messageType, messageName, imageOne, imageTwo, imageThree, price, quantity, points, promo, promoLineOne, promoLineTwo, disclaimerLineOne, disclaimerLineTwo } = req.body
+    const { player, draft, messageType, messageName, imageOne, imageTwo, imageThree, price, quantity, points, promo, promoLineOne, promoLineTwo, disclaimerLineOne, disclaimerLineTwo } = req.body
+    const authHeader = req.headers.authorization
+    const token = authHeader.split(' ')[1]
+  
+    const id = jwt.verify(
+      token,
+      process.env.ACCESS_TOKEN_SECRET,
+      (err, decoded) => {
+          if (err) return res.status(403).json({ message: 'Forbidden' })       
+          return decoded.UserInfo.userId }
+  )
   
     // Confirm data
     if (!player || !imageOne || !imageTwo || !imageThree || !price || !quantity || !points || !promo || !promoLineOne || !promoLineTwo || !disclaimerLineOne || !disclaimerLineTwo) {

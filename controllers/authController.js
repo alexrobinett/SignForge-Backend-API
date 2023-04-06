@@ -11,7 +11,7 @@ const login = asyncHandler(async (req, res) => {
         return res.status(400).json({Message: 'All fields Required'})
     }
 
-    const foundUser = await User.findOne({email: email}).exec()
+    const foundUser = await User.findOne({email: `${email}`}).exec()
     
     if (!foundUser){
         return res.status(401).json({Message: 'Unauthorized'})
@@ -25,64 +25,71 @@ const login = asyncHandler(async (req, res) => {
         {
             "UserInfo":{
                 "userId": foundUser._id,
-                "Name": foundUser.firstName
+                "email": foundUser.email,
+                "name": foundUser.firstName
             }
         },
         process.env.ACCESS_TOKEN_SECRET,
-        {expiresIn: '10s'}
+        {expiresIn: '15m'}
     )
 
     const refreshToken = jwt.sign(
-        { "userId": foundUser._id },
+        {  
+        "userId": foundUser._id,
+        "email": foundUser.email,
+        "name": foundUser.firstName },
         process.env.REFRESH_TOKEN_SECRET,
-        {expiresIn: '1d'}
+        {expiresIn: '7d'}
     )
 
     res.cookie('jwt', refreshToken, {
         httpOnly: true,
         secure: true,
-        sameSite: 'none',
-        maxAge: 7*24*60*60*1000
-    })
+        sameSite: 'lax',
+        maxAge: 5 * 24 * 60 * 60 * 1000,
+      });
+      
 
     res.json({accessToken})
 
 })
 
-  const refresh = asyncHandler(async (req, res) => {
-
+const refresh = (req, res) => {
     const cookies = req.cookies
-    console.log(cookies.jwt)
-    if(!cookies?.jwt) return res.status(401).json({Message: 'Unauthorized'})
-    
+
+    if (!cookies?.jwt) return res.status(401).json({ message: 'Unauthorized' })
+
     const refreshToken = cookies.jwt
 
     jwt.verify(
         refreshToken,
         process.env.REFRESH_TOKEN_SECRET,
-        asyncHandler(async (err, decoded) => {
-            if (err) return res.status(403).json({Message: 'Forbidden'})
+        async (err, decoded) => {
+            if (err) return res.status(403).json({ message: 'Forbidden' })
 
-            const foundUser = await User.findOne({_id: decoded.userId})
+            const foundUser = await User.findOne({ username: decoded.username }).exec()
 
-            if(!foundUser) return res.status(401).json({Message: 'Unauthorized'})
+            if (!foundUser) return res.status(401).json({ message: 'Unauthorized' })
 
             const accessToken = jwt.sign(
                 {
                     "UserInfo":{
                         "userId": foundUser._id,
-                        "Name": foundUser.firstName
+                        "email": foundUser.email,
+                        "name": foundUser.firstName
                     }
                 },
                 process.env.ACCESS_TOKEN_SECRET,
-                {expiresIn: '10s'}
+                { expiresIn: '15m' }
             )
 
-            res.json({accessToken})
-        })
+            res.json({ accessToken })
+        }
     )
-    
-  });
+}
+
+
+  
 
   const logout = asyncHandler(async (req, res) => {
     const cookies = req.cookies

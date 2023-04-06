@@ -6,6 +6,7 @@ const dotenv = require('dotenv');
 const Image = require('../models/imageModel');
 const User = require('../models/userModel');
 const bodyParser = require('body-parser')
+const jwt = require('jsonwebtoken')
 dotenv.config();
 
 const s3 = new S3Client({
@@ -38,6 +39,7 @@ const uploadImage = asyncHandler(async (req, res) => {
         console.error(error);
         res.status(500).send('Server error');
       } else {
+
         // Get the user that uploaded the photo
         const user = await User.findById(req.body.id);
         console.log(req.body)
@@ -63,12 +65,19 @@ const uploadImage = asyncHandler(async (req, res) => {
 
 const getUserImages = asyncHandler(async (req, res, next) => {
   try {
-    // Get the user ID from the request
-    const { id } = req.query;
+    const authHeader = req.headers.authorization
+    const token = authHeader.split(' ')[1]
+
+    id = jwt.verify(
+      token,
+      process.env.ACCESS_TOKEN_SECRET,
+      (err, decoded) => {
+          if (err) return res.status(403).json({ message: 'Forbidden' })       
+          return decoded.UserInfo.userId }
+  )
 
     // Query the database for the images belonging to the user
     const images = await Image.find({ owner: id });
-    console.log(id)
     // Build an array of image URLs
 
     res.send(images);
@@ -136,8 +145,6 @@ const deleteImage = asyncHandler(async (req, res, next) => {
       // Get the image ID from the request parameters
       const imageId = req.params.id;
       const imageName = req.body.updateName
-      console.log(req.body)
-      console.log(imageName);
       const image = await Image.findById(imageId);
       image.fileName = imageName
 

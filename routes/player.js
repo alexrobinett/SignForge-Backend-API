@@ -4,16 +4,15 @@ const playerController = require('../controllers/playerController');
 
 const verifyJWT = require('../middleware/verifyJWT')
 
-router.use(verifyJWT)
 
 
 router.route('/')
-  .get(playerController.getAllPlayers)
-  .post(playerController.createNewPlayer)
+  .get(verifyJWT, playerController.getAllPlayers)
+  .post(verifyJWT, playerController.createNewPlayer)
   
 router.route('/:id')
-  .patch(playerController.updatePlayer)
-  .delete(playerController.deletePlayer);
+  .patch(verifyJWT, playerController.updatePlayer)
+  .delete(verifyJWT, playerController.deletePlayer);
 
 
 

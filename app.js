@@ -6,6 +6,7 @@ const path = require('path');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 const mongoose = require('mongoose');
+const corsOptions = require('./config/corsOptions')
 
 const { Schema } = mongoose;
 const cors = require('cors');
@@ -16,7 +17,8 @@ db.on('error', (error) => console.error(error));
 db.once('error', (error) => console.log('Connected to Database'));
 
 const app = express();
-
+app.use(cors(corsOptions));
+app.use(cookieParser());
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
@@ -24,9 +26,8 @@ app.set('view engine', 'ejs');
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
-app.use(cors());
+
 
 app.use('/messages', require('./routes/messages'));
 app.use('/',  require('./routes/index'));
