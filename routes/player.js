@@ -11,8 +11,8 @@ router.route('/')
   .post(verifyJWT, playerController.createNewPlayer)
   
 router.route('/:id')
-  .patch(verifyJWT, playerController.updatePlayer)
-  .delete(verifyJWT, playerController.deletePlayer);
+  .patch(playerController.updatePlayer)
+  .delete(playerController.deletePlayer);
 
 
 

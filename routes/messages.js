@@ -4,8 +4,6 @@ const messageController = require('../controllers/messageController')
 
 const verifyJWT = require('../middleware/verifyJWT')
 
-router.use(verifyJWT)
-
 router.route('/')
     .get(messageController.getAllMessages)  
     .post(messageController.createNewMessage)
