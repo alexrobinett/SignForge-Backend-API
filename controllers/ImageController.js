@@ -37,7 +37,7 @@ const uploadImage = asyncHandler(async (req, res) => {
     upload.single('photo')(req, res, async (error) => {
       if (error) {
         console.error(error);
-        res.status(500).send('Server error');
+        res.status(500).send('Server error no access');
       } else {
         const authHeader = req.headers.authorization
     const token = authHeader.split(' ')[1]
