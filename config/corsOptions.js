@@ -9,7 +9,8 @@ const corsOptions = {
     'https://digital-signage-message.netlify.app',
     'https://signforge.netlify.app',
     'https://alexrobinett.github.io',
-    'https://ds-cms.vercel.app'
+    'https://ds-cms.vercel.app',
+    'https://sign-forge-player.vercel.app'
   ],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
