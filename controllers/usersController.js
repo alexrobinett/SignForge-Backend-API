@@ -4,6 +4,7 @@ const User = require('../models/userModel');
 const message = require('../models/imageModel');
 const player = require('../models/playerModel');
 
+
 // get all users
 // route GET /users
 // access Private
@@ -33,6 +34,11 @@ const createNewUser = asyncHandler(async (req, res) => {
   if (duplicate) {
     return res.status(409).json({ Message: 'Email has been used before!' });
   }
+
+  const demoPlayer = new player({ name: 'Demo-Player' });
+  await demoPlayer.save();
+
+  userObj.players = [demoPlayer._id];
 
   // hash password
   const hashedPassword = await bcrypt.hash(password, 12);

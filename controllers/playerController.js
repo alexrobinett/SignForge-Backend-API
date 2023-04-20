@@ -9,44 +9,46 @@ dotenv.config();
 
 // Get all Players With Owner
 const getAllPlayers = asyncHandler(async (req, res) => {
-  const authHeader = req.headers.authorization
-  const token = authHeader.split(' ')[1]
+  const authHeader = req.headers.authorization;
+  const token = authHeader.split(" ")[1];
 
   const id = jwt.verify(
     token,
     process.env.ACCESS_TOKEN_SECRET,
     (err, decoded) => {
-        if (err) return res.status(403).json({ message: 'Forbidden' })       
-        return decoded.UserInfo.userId }
-)
-    
-    try {
-      // Get all players from MongoDB
-      const players = await Player.find().lean();
-  
-      // If no players
-      if (!players?.length) {
-        return res.status(400).json({ message: 'No Players found' });
-      }
-  
-      // Get the user object for the given userId
-      const playerUser = await User.findById(id).lean().exec();
-      if (!playerUser) {
-        return res.status(404).json({ message: 'User not found' });
-      }
-  
-      // Map over the players array and add the userName property for each player
-      const PlayersWithOwner = players.map(player => ({
-        ...player,
-        userName: playerUser.userName
-      }));
-  
-      res.json(PlayersWithOwner);
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ message: 'Internal server error' });
+      if (err) return res.status(403).json({ message: "Forbidden" });
+      return decoded.UserInfo.userId;
     }
-  });
+  );
+
+  try {
+    // Get all players from MongoDB that are owned by the logged-in user
+    const players = await Player.find({ owner: id }).lean();
+
+    // If no players
+    if (!players?.length) {
+      return res.status(400).json({ message: "No Players found" });
+    }
+
+    // Get the user object for the given userId
+    const playerUser = await User.findById(id).lean().exec();
+    if (!playerUser) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Map over the players array and add the userName property for each player
+    const PlayersWithOwner = players.map((player) => ({
+      ...player,
+      owner: playerUser.owner,
+    }));
+
+    res.json(PlayersWithOwner);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
 // get a player by it's ID
 
 const getPlayerById = asyncHandler(async (req, res, next) => {
