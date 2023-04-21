@@ -110,8 +110,6 @@ const updatePlayer = asyncHandler(async (req, res) => {
   const { playerName, id } = req.body;
   const playerId = req.params.id;
 
-  console.log(playerId);
-  console.log(playerName);
 
   // Confirm data
   if (!playerId || !playerName) {
@@ -143,8 +141,8 @@ const updatePlayer = asyncHandler(async (req, res) => {
 
 // delete player and messages
 const deletePlayer = asyncHandler(async (req, res) => {
-    const id  = req.query.id;
-    
+    const id  = req.params.id;
+
     // Confirm data
     if (!id) {
       return res.status(400).json({ message: 'Player ID required' });
@@ -152,7 +150,7 @@ const deletePlayer = asyncHandler(async (req, res) => {
   
     // Confirm Player exists to delete
     const player = await Player.findById(id).exec();
-  
+
     if (!player) {
       return res.status(400).json({ message: 'Player not found' });
     }
@@ -177,7 +175,7 @@ const deletePlayer = asyncHandler(async (req, res) => {
 
 const getPlayerPlaylist = asyncHandler(async (req, res) => {
   const { id } = req.query;
-    console.log(id)
+  
   // Confirm data
   if (!id) {
     return res.status(400).json({ message: 'Player ID required' });

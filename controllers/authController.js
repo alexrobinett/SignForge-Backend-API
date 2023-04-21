@@ -39,13 +39,13 @@ const login = asyncHandler(async (req, res) => {
         "email": foundUser.email,
         "name": foundUser.firstName },
         process.env.REFRESH_TOKEN_SECRET,
-        {expiresIn: '7d'}
+        {expiresIn: '5d'}
     )
 
     res.cookie('jwt', refreshToken, {
         httpOnly: true,
         secure: true,
-        sameSite: 'lax',
+        sameSite: 'strict',
         maxAge: 5 * 24 * 60 * 60 * 1000,
       });
       
@@ -66,7 +66,7 @@ const refresh = (req, res) => {
         process.env.REFRESH_TOKEN_SECRET,
         async (err, decoded) => {
             if (err) return res.status(403).json({ message: 'Forbidden' })
-
+            
             const foundUser = await User.findOne({ username: decoded.username }).exec()
 
             if (!foundUser) return res.status(401).json({ message: 'Unauthorized' })
@@ -80,7 +80,7 @@ const refresh = (req, res) => {
                     }
                 },
                 process.env.ACCESS_TOKEN_SECRET,
-                { expiresIn: '15m' }
+                { expiresIn: '30m' }
             )
 
             res.json({ accessToken })

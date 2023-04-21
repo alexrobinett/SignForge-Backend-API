@@ -33,7 +33,6 @@ const upload = multer({
 const uploadImage = asyncHandler(async (req, res) => {
 
   try {
-    console.log(req.body)
     upload.single('photo')(req, res, async (error) => {
       if (error) {
         console.error(error);
@@ -52,7 +51,6 @@ const uploadImage = asyncHandler(async (req, res) => {
 
         // Get the user that uploaded the photo
         const user = await User.findById(id);
-        console.log(req.body)
 
         // Save the reference to the photo in the user's documentdelete
         const newImage = new Image({
@@ -100,7 +98,6 @@ const getUserImage = asyncHandler(async (req, res, next) => {
   try {
     // Get the image ID from the request parameters
     const imageId = req.params.id;
-    console.log(req.params.id);
     // Query the database for the image with the specified ID
     const image = await Image.findById(imageId);
 
@@ -114,7 +111,6 @@ const deleteImage = asyncHandler(async (req, res, next) => {
     try {
       // Get the image ID from the request parameters
       const imageId = req.params.id;
-      console.log(req.params.id);
       // Query the database for the image with the specified ID
       const image = await Image.findById(imageId);
   
