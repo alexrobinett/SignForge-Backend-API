@@ -85,6 +85,22 @@ const logout = asyncHandler(async (req, res) => {
 const register = asyncHandler(async (req, res) => {
     const { email, password, firstName, lastName } = req.body;
 
+    // Validate required fields
+    if (!email || !password || !firstName || !lastName) {
+        return res.status(400).json({ message: 'All fields are required' });
+    }
+
+    // Basic email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+        return res.status(400).json({ message: 'Please provide a valid email address' });
+    }
+
+    // Password strength validation
+    if (password.length < 6) {
+        return res.status(400).json({ message: 'Password must be at least 6 characters long' });
+    }
+
     // Check if user already exists
     const existingUser = await User.findOne({ email }).exec();
     if (existingUser) {

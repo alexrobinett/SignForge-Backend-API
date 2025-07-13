@@ -10,6 +10,11 @@ dotenv.config();
 // Get all Players With Owner
 const getAllPlayers = asyncHandler(async (req, res) => {
   const authHeader = req.headers.authorization;
+  
+  if (!authHeader?.startsWith('Bearer ')) {
+    return res.status(401).json({ message: 'Unauthorized - No valid token provided' });
+  }
+  
   const token = authHeader.split(" ")[1];
 
   const id = jwt.verify(
@@ -70,6 +75,11 @@ const createNewPlayer = asyncHandler(async (req, res) => {
   const { playerName, playlist } = req.body;
 
   const authHeader = req.headers.authorization
+  
+  if (!authHeader?.startsWith('Bearer ')) {
+    return res.status(401).json({ message: 'Unauthorized - No valid token provided' });
+  }
+  
   const token = authHeader.split(' ')[1]
 
   const owner = jwt.verify(

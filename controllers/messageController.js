@@ -9,6 +9,11 @@ dotenv.config();
 
 const getAllMessages = asyncHandler(async (req, res) => {
   const authHeader = req.headers.authorization
+  
+  if (!authHeader?.startsWith('Bearer ')) {
+    return res.status(401).json({ message: 'Unauthorized - No valid token provided' });
+  }
+  
   const token = authHeader.split(' ')[1]
 
   const id = jwt.verify(
@@ -36,6 +41,11 @@ const getAllMessages = asyncHandler(async (req, res) => {
 const createNewMessage = asyncHandler(async (req, res) => {
     const { player, draft, messageType, messageName, imageOne, imageTwo, imageThree, price, quantity, points, promo, promoLineOne, promoLineTwo, disclaimerLineOne, disclaimerLineTwo } = req.body
     const authHeader = req.headers.authorization
+    
+    if (!authHeader?.startsWith('Bearer ')) {
+      return res.status(401).json({ message: 'Unauthorized - No valid token provided' });
+    }
+    
     const token = authHeader.split(' ')[1]
   
     const id = jwt.verify(
