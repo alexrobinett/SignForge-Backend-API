@@ -1,6 +1,6 @@
 const asyncHandler = require('express-async-handler');
 const User = require('../models/userModel');
-const Message = require('../models/imageModel');
+const Message = require('../models/messageModel');
 const Player = require('../models/playerModel');
 const jwt = require('jsonwebtoken')
 const dotenv = require('dotenv');

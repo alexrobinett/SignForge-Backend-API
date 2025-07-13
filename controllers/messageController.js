@@ -58,8 +58,6 @@ const createNewMessage = asyncHandler(async (req, res) => {
       messageName: messageName,
       messageType: messageType,
       draft: draft,
-      messageType: messageType,
-      messageName: messageName,
       imageOne: imageOne,
       imageTwo: imageTwo,
       imageThree: imageThree,
